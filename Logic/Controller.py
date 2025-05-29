@@ -33,7 +33,8 @@ class CorePoker:
     for i in range(len(players)):
       self.players.append(Player(i, players[i]))
     # Initialized game
-    self.prolog.consult("Main.pl")
+    self.prolog.consult("PokerLogic"
+    ".pl")
     self.reset()
 
   def __str__(self):
@@ -104,7 +105,7 @@ class EasyPoker:
           else: break
         self.clear_terminal()
         self.core.draw(i, cards) 
-    return self.core.evaluate()
+    print(self.core.evaluate())
     
 # ------------------ [ AI Poker class ] ------------------ # 
 class PokerAI:
@@ -141,24 +142,14 @@ class PokerAI:
       print("\nAI is thinking...")
       self.mccfr.draw_with_policy(self.core, player_index=1)
 
-      # Evaluate hands
-      points = self.core.evaluate()
-      for i, player in enumerate(self.core.players):
-        print(f"{player.nick} final hand: {self.core.deal[i]} -> Points: {points[i]}")
+    # Evaluate hands
+    points = self.core.evaluate()
+    for i, player in enumerate(self.core.players):
+      print(f"{player.nick} final hand: {self.core.deal[i]} -> Points: {points[i]}")
 
-      winner = points.index(max(points))
-      print(f"\nWinner: {self.core.players[winner].nick}!\n")
+    winner = points.index(max(points))
+    print(f"\nWinner: {self.core.players[winner].nick}!\n")
 
-      if round_no < self.rounds - 1:
-        input("Press Enter to continue to next round...")
-        self.clear_terminal()
-
-# ------------------ [ Main ] ------------------ # 
-from MCCFRAgent import MCCFR
-players = [["You"], ["AI"]]
-core = CorePoker(players)
-mccfr = MCCFR(input_size=7)
-mccfr.load()
-
-poker_ai = PokerAI(core, mccfr, rounds=3)
-poker_ai.run()
+    if round_no < self.rounds - 1:
+      input("Press Enter to continue to next round...")
+      self.clear_terminal()
