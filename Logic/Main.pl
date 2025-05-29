@@ -35,8 +35,10 @@ get_hand1(L, T) :-
     D = [X,Y,Z,W,H|T],
     L = [X,Y,Z,W,H].
 
-write_to_file(FileName, Content) :-
-    open(FileName, write, Stream),   % otwórz plik do zapisu (nadpisanie)
-    write(Stream, Content),          % zapisz Content
-    nl(Stream),                      % dodaj znak nowej linii
-    close(Stream).                   % zamknij strumień
+
+% [NOTE] we don't need it
+% write_to_file(FileName, Content) :-
+%     open(FileName, write, Stream),   % otwórz plik do zapisu (nadpisanie)
+%     write(Stream, Content),          % zapisz Content
+%     nl(Stream),                      % dodaj znak nowej linii
+%     close(Stream).                   % zamknij strumień
