@@ -1,10 +1,10 @@
-% --- Definicja kolorów ---
+% --- Definitions of colors ---
 suit(hearts).
 suit(diamonds).
 suit(clubs).
 suit(spades).
 
-% --- Definicja rang ---
+% --- Definitions of rang ---
 rank(2).
 rank(3).
 rank(4).
@@ -19,21 +19,49 @@ rank(queen).
 rank(king).
 rank(ace).
 
+% --- Definitions ---
+
 card(Suit, Rank) :-
     suit(Suit),
     rank(Rank).
 
-deck(Deck) :-
-    findall(card(Suit,Rank), card(Suit,Rank), Deck).
+% --- Initialization ---
 
-shuffle_deck(Shuffled) :-
-    deck(Deck),
+create_deck(Shuffled) :-
+    findall(card(Suit,Rank), card(Suit,Rank), Deck),
     random_permutation(Deck, Shuffled).
 
-get_hand1(L, T) :-
-    shuffle_deck(D),
-    D = [X,Y,Z,W,H|T],
-    L = [X,Y,Z,W,H].
+get_five_cards(Deck, Cards, Rest) :-
+    Cards = [A,B,C,D,E],
+    Deck = [A,B,C,D,E|Rest].
+
+deal_cards(0, Deck, [], Deck).
+deal_cards(Players, Deck, [Cards|Deal], Rest) :-
+    Players > 0,
+    get_five_cards(Deck, Cards, NextDeck),
+    NPlayers is Players - 1,
+    deal_cards(NPlayers, NextDeck, Deal, Rest).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 % [NOTE] we don't need it
