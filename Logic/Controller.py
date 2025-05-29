@@ -1,5 +1,6 @@
 # ------------------ [ Include ] ------------------ # 
 from pyswip import Prolog
+import os
 
 # ------------------ [ Player class ] ------------------ # 
 class Player:
@@ -66,26 +67,35 @@ class EasyPoker:
     self.core = core
     self.rounds = rounds
 
+  def clear_terminal(self):
+    if os.name == 'nt':
+        os.system('cls')
+    else:
+        os.system('clear')
+
+  # Terminal version
   def run(self):
     for _ in range(self.rounds):
       for i in range(len(core.players)):
         print(core.players[i])
+        input("Show deal: press enter")
+        print(core.deal[i])
         cards = []
-        print("Chose cards to draw (exit to end)")
+        print("Chose cards to draw (type exit to end)")
         for j in range(3):
           print("> ", end="")
           card = input()
           if(card.isdigit() and (0 <= int(card) <= 5)):
             cards.append(int(card))
           else: break
+        self.clear_terminal()
         self.draw(i, cards) 
 
   # [TODO] Create prolog draw system
   def draw(self, playerId : int, cardsIndex : list):
     if(len(cardsIndex) > 3):
       raise ValueError("Chosen to many cards!!!")
-    print(cardsIndex)
-    
+
     
 
 # ------------------ [ Main ] ------------------ # 
