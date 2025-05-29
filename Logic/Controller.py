@@ -45,7 +45,7 @@ class CorePoker:
   
   def reset(self):
     self.deck = list(self.prolog.query("create_deck(Deck)"))[0]['Deck']
-    deal = list(self.prolog.query(f"deal_cards({len(self.players)}, {self.deck}, Deal, Rest)"))[0]
+    deal = list(self.prolog.query(f"deal_cards({'['+','.join(str(len(self.players)))+']'}, {self.deck}, Deal, Rest)"))[0]
     self.deck = deal['Rest']
     self.deal = deal['Deal']
   
@@ -54,12 +54,16 @@ class CorePoker:
       raise ValueError("Chosen to many cards!!!")
     if(playerId > len(self.players)):
       raise ValueError(f"No player with index {playerId}!!!")
-    update = list(self.prolog.query(f"draw({self.deck}, {self.deal[playerId]}, {cardsIndex}, Deal, Deck)"))[0]
+    update = list(self.prolog.query(f"draw({'['+','.join(self.deck)+']'}, {'['+','.join(self.deal[playerId])+']'}, {cardsIndex}, Deal, Deck)"))[0]
     self.deal[playerId] = update['Deal']
     self.deck = update['Deck']
 
   def evaluate(self):
-    return list(self.prolog.query(f"evaluate({self.deal}, Points)"))[0]['Points']
+    deals = []
+    for hand in self.deal:
+        string = '[' + ', '.join(hand) + ']'
+        deals.append(string)
+    return list(self.prolog.query(f"evaluate({'['+','.join(deals)+']'}, Points)"))[0]['Points']
 
   def getPlayersInfo(self):
     table = []
@@ -108,3 +112,4 @@ core = CorePoker([["Daniel"], ["Ruslan"]])
 game = EasyPoker(core, 2)
 print(game.run())
 
+# [BUG] Error when no cards in deck and you draw
