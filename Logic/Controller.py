@@ -27,13 +27,11 @@ class CorePoker:
   deal = []
   
   def __init__(self, players : list):
-    if(2 > len(players) or len(players) > 10): 
+    if(1 > len(players) or len(players) > 10): 
       raise ValueError("Invalid numbers of players!!!")
-
     # Set Players
     for i in range(len(players)):
       self.players.append(Player(i, players[i]))
-
     # Initialized game
     self.prolog.consult("Main.pl")
     self.deck = list(self.prolog.query("create_deck(Deck)"))[0]['Deck']
@@ -47,16 +45,25 @@ class CorePoker:
       string += str(self.players[i]) + " " + str(self.deal[i]) + "\n"
     string += str(self.deck)
     return string
+  
+  def draw(self, playerId : int, cardsIndex : list):
+    if(len(cardsIndex) > 3):
+      raise ValueError("Chosen to many cards!!!")
+    if(playerId > len(self.players)):
+      raise ValueError(f"No player with index {playerId}!!!")
+    update = list(self.prolog.query(f"draw({self.deck}, {self.deal[playerId]}, {cardsIndex}, Deal, Deck)"))[0]
+    self.deal[playerId] = update['Deal']
+    self.deck = update['Deck']
+
+  # [TODO] Create prolog evaluation system
+  def evaluate():
+    pass
 
   def getPlayersInfo(self):
     table = []
     for i in range(len(self.players)):
       table.append([self.players[i].getInfo(), self.deal[i]])
     return table
-  
-  # [TODO] Create prolog evaluation system
-  def evaluate():
-    pass
 
 # ------------------ [ Core Poker class ] ------------------ # 
 class EasyPoker:
@@ -89,13 +96,7 @@ class EasyPoker:
             cards.append(int(card))
           else: break
         self.clear_terminal()
-        self.draw(i, cards) 
-
-  # [TODO] Create prolog draw system
-  def draw(self, playerId : int, cardsIndex : list):
-    if(len(cardsIndex) > 3):
-      raise ValueError("Chosen to many cards!!!")
-
+        self.core.draw(i, cards) 
     
 
 # ------------------ [ Main ] ------------------ # 

@@ -31,9 +31,7 @@ create_deck(Shuffled) :-
     findall(card(Suit,Rank), card(Suit,Rank), Deck),
     random_permutation(Deck, Shuffled).
 
-get_five_cards(Deck, Cards, Rest) :-
-    Cards = [A,B,C,D,E],
-    Deck = [A,B,C,D,E|Rest].
+get_five_cards([A,B,C,D,E|Rest], [A,B,C,D,E], Rest).
 
 deal_cards(0, Deck, [], Deck).
 deal_cards(Players, Deck, [Cards|Deal], Rest) :-
@@ -42,31 +40,17 @@ deal_cards(Players, Deck, [Cards|Deal], Rest) :-
     NPlayers is Players - 1,
     deal_cards(NPlayers, NextDeck, Deal, Rest).
 
+% --- Core Poker Actions ---
+get_one_cards([A|Rest], A, Rest).
 
+replace_at_index([_|T], 0, NewValue, [NewValue|T]).
+replace_at_index([H|T], Index, NewValue, [H|R]) :-
+    Index > 0,
+    Index1 is Index - 1,
+    replace_at_index(T, Index1, NewValue, R).
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% [NOTE] we don't need it
-% write_to_file(FileName, Content) :-
-%     open(FileName, write, Stream),   % otwórz plik do zapisu (nadpisanie)
-%     write(Stream, Content),          % zapisz Content
-%     nl(Stream),                      % dodaj znak nowej linii
-%     close(Stream).                   % zamknij strumień
+draw(Deck, Deal, [], Deal, Deck).
+draw(Deck, Deal, [Index|Indexes], NewDeal, NewDeck) :- 
+    get_one_cards(Deck, Card, RestDeck),
+    replace_at_index(Deal, Index, Card, NewDeal),
+    draw(RestDeck, NewDeal, Indexes, _, NewDeck).
