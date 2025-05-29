@@ -111,5 +111,3 @@ class EasyPoker:
 core = CorePoker([["Daniel"], ["Ruslan"]])
 game = EasyPoker(core, 2)
 print(game.run())
-
-# [BUG] Error when no cards in deck and you draw

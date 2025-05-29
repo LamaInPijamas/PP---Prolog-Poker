@@ -31,8 +31,10 @@ create_deck(Shuffled) :-
     findall(card(Suit,Rank), card(Suit,Rank), Deck),
     random_permutation(Deck, Shuffled).
 
-get_five_cards([A,B,C,D,E|Rest], [A,B,C,D,E], Rest).
+get_five_cards(Deck, [], Deck) :- length(Deck, L), L < 5.
+get_five_cards([A,B,C,D,E|Rest], [A,B,C,D,E], Rest) :- length([A,B,C,D,E|Rest], L), L >= 5.
 
+deal_cards(0, Deck, [], Deck).
 deal_cards(0, Deck, [], Deck).
 deal_cards(Players, Deck, [Cards|Deal], Rest) :-
     Players > 0,
