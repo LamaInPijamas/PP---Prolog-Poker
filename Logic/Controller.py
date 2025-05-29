@@ -95,7 +95,7 @@ class EasyPoker:
         for j in range(3):
           print("> ", end="")
           card = input()
-          if(card.isdigit() and (0 <= int(card) <= 5)):
+          if(card.isdigit() and (0 <= int(card) <= 4)):
             cards.append(int(card))
           else: break
         self.clear_terminal()
