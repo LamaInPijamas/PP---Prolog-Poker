@@ -1,3 +1,4 @@
+# ------------------ [ Include ] ------------------ # 
 from pyswip import Prolog
 
 # ------------------ [ Player class ] ------------------ # 
@@ -24,7 +25,7 @@ class CorePoker:
   players = []
   deal = []
   
-  def __init__(self, players):
+  def __init__(self, players : list):
     if(2 > len(players) or len(players) > 10): 
       raise ValueError("Invalid numbers of players!!!")
 
@@ -51,9 +52,44 @@ class CorePoker:
     for i in range(len(self.players)):
       table.append([self.players[i].getInfo(), self.deal[i]])
     return table
+  
+  # [TODO] Create prolog evaluation system
+  def evaluate():
+    pass
 
+# ------------------ [ Core Poker class ] ------------------ # 
+class EasyPoker:
+  core = None
+  player_move = 0
+  rounds = 1
+  def __init__(self, core : CorePoker, rounds = 1):
+    self.core = core
+    self.rounds = rounds
+
+  def run(self):
+    for _ in range(self.rounds):
+      for i in range(len(core.players)):
+        print(core.players[i])
+        cards = []
+        print("Chose cards to draw (exit to end)")
+        for j in range(3):
+          print("> ", end="")
+          card = input()
+          if(card.isdigit() and (0 <= int(card) <= 5)):
+            cards.append(int(card))
+          else: break
+        self.draw(i, cards) 
+
+  # [TODO] Create prolog draw system
+  def draw(self, playerId : int, cardsIndex : list):
+    if(len(cardsIndex) > 3):
+      raise ValueError("Chosen to many cards!!!")
+    print(cardsIndex)
+    
+    
 
 # ------------------ [ Main ] ------------------ # 
 core = CorePoker([["Daniel"], ["Ruslan"]])
-print(core)
+game = EasyPoker(core, 2)
+game.run()
 
