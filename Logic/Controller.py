@@ -34,10 +34,7 @@ class CorePoker:
       self.players.append(Player(i, players[i]))
     # Initialized game
     self.prolog.consult("Main.pl")
-    self.deck = list(self.prolog.query("create_deck(Deck)"))[0]['Deck']
-    deal = list(self.prolog.query(f"deal_cards({len(players)}, {self.deck}, Deal, Rest)"))[0]
-    self.deck = deal['Rest']
-    self.deal = deal['Deal']
+    self.reset()
 
   def __str__(self):
     string = ""
@@ -45,6 +42,12 @@ class CorePoker:
       string += str(self.players[i]) + " " + str(self.deal[i]) + "\n"
     string += str(self.deck)
     return string
+  
+  def reset(self):
+    self.deck = list(self.prolog.query("create_deck(Deck)"))[0]['Deck']
+    deal = list(self.prolog.query(f"deal_cards({len(self.players)}, {self.deck}, Deal, Rest)"))[0]
+    self.deck = deal['Rest']
+    self.deal = deal['Deal']
   
   def draw(self, playerId : int, cardsIndex : list):
     if(len(cardsIndex) > 3):
@@ -55,9 +58,8 @@ class CorePoker:
     self.deal[playerId] = update['Deal']
     self.deck = update['Deck']
 
-  # [TODO] Create prolog evaluation system
-  def evaluate():
-    pass
+  def evaluate(self):
+    return list(self.prolog.query(f"evaluate({self.deal}, Points)"))[0]['Points']
 
   def getPlayersInfo(self):
     table = []
@@ -82,11 +84,12 @@ class EasyPoker:
 
   # Terminal version
   def run(self):
+    self.clear_terminal()
     for _ in range(self.rounds):
-      for i in range(len(core.players)):
-        print(core.players[i])
+      for i in range(len(self.core.players)):
+        print(self.core.players[i])
         input("Show deal: press enter")
-        print(core.deal[i])
+        print(self.core.deal[i])
         cards = []
         print("Chose cards to draw (type exit to end)")
         for j in range(3):
@@ -97,10 +100,11 @@ class EasyPoker:
           else: break
         self.clear_terminal()
         self.core.draw(i, cards) 
+    return self.core.evaluate()
     
 
 # ------------------ [ Main ] ------------------ # 
 core = CorePoker([["Daniel"], ["Ruslan"]])
 game = EasyPoker(core, 2)
-game.run()
+print(game.run())
 
