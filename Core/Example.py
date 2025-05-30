@@ -1,28 +1,35 @@
-from Controller import CorePoker, PokerAI, EasyPoker
-from MCCFR import MCCFR
+  # --------------- [Include] --------------- #
+from Core.Core import Core
+from Variants.MCCFRAIPoker import MCCFRAIPoker
+from Variants.ClassicTerminalPoker import ClassicTerminalPoker
+from AI.MCCFR import MCCFR
 
-mode = "Vizualization"
+# --------------- [GUI] --------------- #
+mode = 0
+print("Chose Mode")
+print("1: Normal")
+print("2: MCCFR 5000 AI")
+print("3: Visualization of AI")
+mode = input()
 
-if mode == "AI":
-  # --------------- [AI] --------------- #
-  players = [["You"], ["AI"]]
-  core = CorePoker(players)
-
-  mccfr = MCCFR(input_size=7)
-  mccfr.load()
-
-  poker_ai = PokerAI(core, mccfr, rounds=3)
-  poker_ai.run()
-
-if mode == "Normal":
+if mode == "1":
   # --------------- [Normal] --------------- #
   players = [["Daniel"], ["Ruslan"]]
-  core = CorePoker(players)
-  easy_poker = EasyPoker(core, 3)
+  core = Core(players)
+  easy_poker = ClassicPoker(core, 3)
   easy_poker.run()
 
-  # --------------- [Vizualization] --------------- #
-if mode == "Vizualization":
+if mode == "2":
+  # --------------- [AI] --------------- #
+  players = [["You"], ["AI"]]
+  core = Core(players)
+  mccfr = MCCFR(input_size=7, save_path="monte_carlos_5000.pt")
+  mccfr.load()
+  poker_ai = MCCFRAIPoker(core, mccfr, 3)
+  poker_ai.run()
+
+  # --------------- [Visualization] --------------- #
+if mode == "3":
   import matplotlib.pyplot as plt
   from tqdm import tqdm
   import random
@@ -31,7 +38,7 @@ if mode == "Vizualization":
   torch.manual_seed(42)
 
   players = [["You"], ["AI"]]
-  core = CorePoker(players)
+  core = Core(players)
   mccfr = MCCFR(input_size=7)
 
   iteration_steps = [500, 5000]

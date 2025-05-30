@@ -6,6 +6,7 @@ import random
 from tqdm import tqdm
 from typing import List, Any, Optional
 
+MODEL_PATH_PREFIX = "../AI/Models/"
 
 class CFRNet(nn.Module):
     def __init__(self, input_size: int, hidden_size: int = 128):
@@ -23,7 +24,6 @@ class CFRNet(nn.Module):
             x = x.unsqueeze(0)  # batch dimension
         return self.model(x).squeeze(-1)
 
-
 class MCCFR:
     def __init__(self, input_size: int, device: Optional[torch.device] = None, save_path: str = "mccfr_model.pt"):
         self.device = device or (torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu"))
@@ -31,7 +31,9 @@ class MCCFR:
         self.strategy_net = CFRNet(input_size).to(self.device)
         self.optimizer = optim.Adam(self.regret_net.parameters(), lr=0.01)
         self.strategy_optimizer = optim.Adam(self.strategy_net.parameters(), lr=0.01)
-        self.save_path = save_path
+        if not os.path.isdir(MODEL_PATH_PREFIX):
+            os.makedirs(MODEL_PATH_PREFIX)
+        self.save_path = MODEL_PATH_PREFIX + save_path
         self.input_size = input_size
 
     def get_state_representation(self, player_info: List[Any], hand: List[Any]) -> torch.Tensor:
@@ -150,7 +152,7 @@ if __name__ == "__main__":
     print("\nYour hand:", core.deal[0])
 
     cards = []
-    print("Choose up to 3 cards to draw (indexes 0–4), one per line. Type any non-digit to finish:")
+    print(f"Choose up to {self.core.max_draw} cards to draw (indexes 0–4), one per line. Type any non-digit to finish:")
     for _ in range(3):
         choice = input("> ")
         if choice.isdigit() and 0 <= int(choice) <= 4:
