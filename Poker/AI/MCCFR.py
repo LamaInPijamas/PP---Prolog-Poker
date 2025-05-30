@@ -6,6 +6,8 @@ import random
 from tqdm import tqdm
 from typing import List, Any, Optional
 
+# [TODO] Fix this pice of shit
+
 MODEL_PATH_PREFIX = "../AI/Models/"
 
 class CFRNet(nn.Module):
@@ -86,36 +88,40 @@ class MCCFR:
         state = self.get_state_representation(player_info, hand)
         strategy = self.get_strategy(state)
 
-        draw_count = max(0, min(int(strategy * 3), 3))
+        draw_count = max(0, min(int(strategy * core.max_draw), core.max_draw))
         draw_indices = random.sample(range(len(hand)), draw_count) if draw_count > 0 else []
         core.draw(player_index, draw_indices)
 
-    def simulate_game(self, core: Any) -> None:
-        core.reset()
-        num_players = len(core.players)
+    def simulate_game(self, core: Any, num_rounds: int = 1) -> None:
+        for _ in range(num_rounds):
+            core.reset()
+            num_players = len(core.players)
 
-        for i in range(num_players):
-            player_info = core.players[i].getInfo()
-            hand = core.deal[i]
-            state = self.get_state_representation(player_info, hand)
-            strategy = self.get_strategy(state)
+            # Drawing phase for all players
+            for i in range(num_players):
+                player_info = core.players[i].getInfo()
+                hand = core.deal[i]
+                state = self.get_state_representation(player_info, hand)
+                strategy = self.get_strategy(state)
 
-            draw_count = max(0, min(int(strategy * 3), 3))
-            draw_indices = random.sample(range(len(hand)), draw_count) if draw_count > 0 else []
-            core.draw(i, draw_indices)
+                draw_count = max(0, min(int(strategy * core.max_draw), core.max_draw))
+                draw_indices = random.sample(range(len(hand)), draw_count) if draw_count > 0 else []
+                core.draw(playerId=i, cardsIndex=draw_indices)
 
-        points = core.evaluate()
-        for i in range(num_players):
-            player_info = core.players[i].getInfo()
-            hand = core.deal[i]
-            state = self.get_state_representation(player_info, hand)
-            reward = torch.tensor(points[i], dtype=torch.float32, device=self.device)
-            self.update_regret(state, reward)
-            self.update_strategy(state, reward)
+            # Evaluation and learning
+            points = core.evaluate()
+            for i in range(num_players):
+                player_info = core.players[i].getInfo()
+                hand = core.deal[i]
+                state = self.get_state_representation(player_info, hand)
+                reward = torch.tensor(points[i], dtype=torch.float32, device=self.device)
+                self.update_regret(state, reward)
+                self.update_strategy(state, reward)
 
-    def train(self, core: Any, iterations: int = 1000) -> None:
+
+    def train(self, core: Any, iterations: int = 1000, rounds: int = 1) -> None:
         for _ in tqdm(range(iterations), desc="Training MCCFR"):
-            self.simulate_game(core)
+            self.simulate_game(core, rounds)
 
     def save(self) -> None:
         torch.save({

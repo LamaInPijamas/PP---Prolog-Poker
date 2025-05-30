@@ -4,10 +4,9 @@ import os
 
 # ------------------ [ AI Poker class ] ------------------ # 
 class MCCFRAIPoker:
-  def __init__(self, core: Core, mccfr_agent, rounds=1):
+  def __init__(self, core: Core, mccfr_agent):
     self.core = core
     self.mccfr = mccfr_agent
-    self.rounds = rounds
 
   def clear_terminal(self):
     if os.name == 'nt':
@@ -17,7 +16,7 @@ class MCCFRAIPoker:
 
   def run(self):
     self.clear_terminal()
-    for round_no in range(self.rounds):
+    for round_no in range(self.core.rounds):
       print(f"--- Round {round_no + 1} ---")
       self.core.reset()
 
@@ -45,6 +44,6 @@ class MCCFRAIPoker:
     winner = points.index(max(points))
     print(f"\nWinner: {self.core.players[winner].nick}!\n")
 
-    if round_no < self.rounds - 1:
+    if round_no < self.core.rounds - 1:
       input("Press Enter to continue to next round...")
       self.clear_terminal()

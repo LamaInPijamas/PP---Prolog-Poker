@@ -10,13 +10,18 @@ class Core:
   players = []
   deal = []
   max_draw = 3
+  rounds = 3
   
-  def __init__(self, players : list, max_draw : int = 3):
+  def __init__(self, players : list, rounds : int = 3, max_draw : int = 3):
     if(1 > len(players) or len(players) > 10): 
       raise ValueError("Invalid numbers of players!!!")
     if(max_draw < 0 or max_draw > 4):
       raise ValueError("Invalid max draw!!!")
+    if(rounds < 0):
+      raise ValueError("Invalid rounds!!!")
     self.max_draw = max_draw
+    self.rounds = rounds
+    
     # Set Players
     for i in range(len(players)):
       self.players.append(Player(i, players[i]))
