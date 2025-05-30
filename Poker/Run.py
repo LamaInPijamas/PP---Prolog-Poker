@@ -1,12 +1,9 @@
 from Core.Core import Core
-from Variants.MCCFRAIPoker import MCCFRAIPoker
-from AI.MCCFR import MCCFR
+from Variants.ClassicTerminalPoker import ClassicTerminalPoker
 
 
 # [TODO] This will be ran on rails python env
-players = [["You"], ["AI"]]
+players = [["Daniel"], ["Ruslan"]]
 core = Core(players, 3)
-mccfr = MCCFR(input_size=7, save_path="monte_carlos_5000.pt")
-mccfr.load()
-poker_ai = MCCFRAIPoker(core, mccfr)
-poker_ai.run()
+easy_poker = ClassicTerminalPoker(core)
+easy_poker.run()
