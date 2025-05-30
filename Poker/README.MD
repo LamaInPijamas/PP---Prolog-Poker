@@ -18,7 +18,7 @@ To see how variants work, check `Example.py`.
 
 ## ✅ TODO
 
-- [x] Repair [`MCCFR.py`](./AI/MCCFR.py) — *Daynlight*
+- [ ] Repair [`MCCFR.py`](./AI/MCCFR.py) — *Daynlight*
 - [ ] Write [`Run.py`](./Run.py) — *LamasPajamas*
 - [ ] Check for bugs
 - [ ] Fix “no cards in deck” draw issue
