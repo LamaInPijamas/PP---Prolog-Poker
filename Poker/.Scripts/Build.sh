@@ -4,7 +4,7 @@ function createVenv(){
   PATH_TO_LOGIC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../"
   PATH_TO_CURRENT_DIR="$(pwd)"
   cd "$PATH_TO_LOGIC_DIR" || exit 1
-  python.exe -m venv .venv
+  python -m venv .venv
   "${PATH_TO_LOGIC_DIR}$1" install -r requirements.txt
   cd "$PATH_TO_CURRENT_DIR" || exit 1
 }
