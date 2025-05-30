@@ -14,6 +14,8 @@ There's also an **MCCFR AI algorithm** (currently broken) in the `AI` directory 
 To see how variants work, check `Example.py`.  
 `Run.py` is for a Rails website (*I have no clue how Rails works. I only write Prolog and Python. Ask **LamasPajamas***).
 
+<b>Update no Ai never ever</b>
+
 ---
 
 ## ✅ TODO
