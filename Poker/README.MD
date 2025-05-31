@@ -18,15 +18,6 @@ To see how variants work, check `Example.py`.
 
 ---
 
-## ✅ TODO
-
-- [ ] Repair [`MCCFR.py`](./AI/MCCFR.py) — *Daynlight*
-- [ ] Write [`Run.py`](./Run.py) — *LamasPajamas*
-- [ ] Check for bugs
-- [ ] Fix “no cards in deck” draw issue
-- [ ] Implement payment system (I want some money ❤️)
-
----
 
 ## 🛠️ Installation
 
