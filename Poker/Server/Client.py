@@ -19,22 +19,23 @@ class Client:
             self.server.connect((self.host, self.port))
             print("Connected to server.")
             self.send(str(id)+";"+nick+";"+str(points))
+            print(self.get())
             while self.run:
                 self.clientLogic()
 
     def clientLogic(self):
-      message = input("Enter message to send to server (or 'exit' to quit): ")
+      message = input("ready, unready, hand, draw, exit: ")
       if message.lower() == 'exit':
           print("Closing connection.")
           self.run = False
       else:
         self.send(message)
-        print("Server respond: ", self.get())
+        respond = self.get()
+        print(respond)
 
     def get(self) -> str:
         data = self.server.recv(1024)
         response = data.decode()
-        print("Received from server:", response)
         return response
 
     def send(self, message):

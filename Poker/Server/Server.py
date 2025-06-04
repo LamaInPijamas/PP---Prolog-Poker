@@ -10,7 +10,8 @@ class Server:
         self.port = port
         self.run = True
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.players = {}  # Store player info keyed by addr
+        self.players = {}  # player_id -> player dict
+        self.lock = threading.Lock()
 
     def terminalListener(self):
         while self.run:
@@ -26,38 +27,53 @@ class Server:
     def handle_client(self, conn, addr):
         print(f"Started thread for {addr}")
         with conn:
-            # First message should be player info
             player_info = self.get(conn)
             if player_info == "":
                 print(f"Client {addr} disconnected before sending player info.")
                 return
+
             try:
                 player_id_str, player_nick, player_points_str = player_info.split(';')
                 player_id = int(player_id_str)
                 player_points = int(player_points_str)
-                self.players[addr] = {
-                    'id': player_id,
-                    'nick': player_nick,
-                    'points': player_points,
-                    'ready': False
-                }
-                print(f"Registered player from {addr}: {self.players[addr]}")
+
+                with self.lock:
+                    if player_id in self.players:
+                        # Reconnecting player
+                        print(f"Player {player_id} reconnected from {addr}")
+                        self.players[player_id]["addr"] = addr
+                        self.players[player_id]["conn"] = conn
+                        self.players[player_id]["connected"] = True
+                    else:
+                        # New player
+                        self.players[player_id] = {
+                            "id": player_id,
+                            "nick": player_nick,
+                            "points": player_points,
+                            "addr": addr,
+                            "conn": conn,
+                            "connected": True,
+                            "ready": False
+                        }
+                        print(f"Registered new player {player_nick} (ID: {player_id}) from {addr}")
                 self.send(conn, "Player registered successfully.")
             except Exception as e:
                 print(f"Failed to parse player info from {addr}: {e}")
                 self.send(conn, "Invalid player info format. Closing connection.")
                 return
 
-            # Now handle normal messages
             while self.run:
-                if not self.serverLogic(conn, addr):
-                    print(f"Client {addr} disconnected.")
+                if not self.serverLogic(conn, player_id):
+                    print(f"Client {addr} (player {player_id}) disconnected.")
                     break
 
-        # Clean up player info on disconnect
-        if addr in self.players:
-            print(f"Removing player {self.players[addr]} for {addr}")
-            del self.players[addr]
+        # Mark player as disconnected
+        with self.lock:
+            if player_id in self.players:
+                self.players[player_id]["connected"] = False
+                self.players[player_id]["conn"] = None
+                self.players[player_id]["addr"] = None
+                print(f"Marked player {player_id} as disconnected.")
 
         print(f"Connection closed for {addr}")
 
@@ -81,18 +97,23 @@ class Server:
         self.server_socket.close()
         print("Server shutdown complete.")
 
-    def serverLogic(self, conn, addr):
+    def serverLogic(self, conn, player_id):
         message = self.get(conn)
         if message == "":
             return False
 
-        # Get player info for this connection
-        player = self.players.get(addr)
-        player_id = player['id'] if player else None
+        with self.lock:
+            player = self.players.get(player_id)
 
-        print(f"Received from player {player_id} at {addr}: {message}")
-        response = f"Message received from player {player_id}: {message}"
-        self.send(conn, response)
+        if(message == "ready"):
+            player['ready'] = True
+            print(f"Player {player['id']} is ready")
+            self.send(conn, "Marked as Ready")
+        elif(message == "unready"):
+            player['ready'] = False
+            print(f"Player {player['id']} is unready")
+            self.send(conn, "Marked as Unready")
+        else: self.send(conn, "No allowed command")
         return True
 
     def get(self, conn) -> str:
@@ -107,7 +128,8 @@ class Server:
 
     def send(self, conn, message: str):
         try:
-            conn.sendall(message.encode())
+            if conn:
+                conn.sendall(message.encode())
         except Exception as e:
             print(f"Send error: {e}")
 
