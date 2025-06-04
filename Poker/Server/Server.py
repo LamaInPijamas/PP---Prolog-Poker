@@ -141,9 +141,7 @@ class Server:
                 players = [p["nick"] for p in active_players]
                 core = Core(players, 3)
                 print("Game Started")
-
-        
-        self.send(conn, str(self.game_started))
+                
 
         return True
 

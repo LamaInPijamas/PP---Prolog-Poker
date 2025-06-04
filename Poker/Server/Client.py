@@ -32,7 +32,6 @@ class Client:
         self.send(message)
         respond = self.get()
         print(respond)
-        self.game_started = self.get()
 
     def get(self) -> str:
         data = self.server.recv(1024)
