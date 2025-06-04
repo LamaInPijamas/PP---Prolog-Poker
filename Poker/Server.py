@@ -38,7 +38,8 @@ class Server:
                 self.players[addr] = {
                     'id': player_id,
                     'nick': player_nick,
-                    'points': player_points
+                    'points': player_points,
+                    'ready': False
                 }
                 print(f"Registered player from {addr}: {self.players[addr]}")
                 self.send(conn, "Player registered successfully.")
