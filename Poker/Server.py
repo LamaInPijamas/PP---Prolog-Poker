@@ -10,6 +10,7 @@ class Server:
         self.port = port
         self.run = True
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.players = {}  # Store player info keyed by addr
 
     def terminalListener(self):
         while self.run:
@@ -25,10 +26,38 @@ class Server:
     def handle_client(self, conn, addr):
         print(f"Started thread for {addr}")
         with conn:
+            # First message should be player info
+            player_info = self.get(conn)
+            if player_info == "":
+                print(f"Client {addr} disconnected before sending player info.")
+                return
+            try:
+                player_id_str, player_nick, player_points_str = player_info.split(';')
+                player_id = int(player_id_str)
+                player_points = int(player_points_str)
+                self.players[addr] = {
+                    'id': player_id,
+                    'nick': player_nick,
+                    'points': player_points
+                }
+                print(f"Registered player from {addr}: {self.players[addr]}")
+                self.send(conn, "Player registered successfully.")
+            except Exception as e:
+                print(f"Failed to parse player info from {addr}: {e}")
+                self.send(conn, "Invalid player info format. Closing connection.")
+                return
+
+            # Now handle normal messages
             while self.run:
                 if not self.serverLogic(conn, addr):
                     print(f"Client {addr} disconnected.")
                     break
+
+        # Clean up player info on disconnect
+        if addr in self.players:
+            print(f"Removing player {self.players[addr]} for {addr}")
+            del self.players[addr]
+
         print(f"Connection closed for {addr}")
 
     def runServer(self):
@@ -42,7 +71,6 @@ class Server:
             try:
                 conn, addr = self.server_socket.accept()
                 print(f"Connected by {addr}")
-                # Start new thread to handle this client
                 threading.Thread(target=self.handle_client, args=(conn, addr), daemon=True).start()
             except Exception as e:
                 if self.run:
@@ -56,8 +84,13 @@ class Server:
         message = self.get(conn)
         if message == "":
             return False
-        print(f"Received from {addr}: {message}")
-        response = "Message received: " + message
+
+        # Get player info for this connection
+        player = self.players.get(addr)
+        player_id = player['id'] if player else None
+
+        print(f"Received from player {player_id} at {addr}: {message}")
+        response = f"Message received from player {player_id}: {message}"
         self.send(conn, response)
         return True
 
