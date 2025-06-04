@@ -1,7 +1,7 @@
 import socket
 
-HOST = '127.0.0.1'  # The server's hostname or IP address
-PORT = 65432        # The port used by the server
+HOST = '127.0.0.1'
+PORT = 65432
 
 class Client:
     def __init__(self, host: str, port: int):
@@ -10,29 +10,30 @@ class Client:
         self.run = True
 
     def runClient(self):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.connect((self.host, self.port))
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
+            self.server = server
+            self.server.connect((self.host, self.port))
             print("Connected to server.")
             while self.run:
-                message = input("Enter message to send to server (or 'exit' to quit): ")
-                if message.lower() == 'exit':
-                    print("Closing connection.")
-                    self.run = False
-                    break
-                s.sendall(message.encode())
-                data = s.recv(1024)
-                print("Received from server:", data.decode())
+                self.clientLogic()
 
     def clientLogic(self):
-      pass
+      message = input("Enter message to send to server (or 'exit' to quit): ")
+      if message.lower() == 'exit':
+          print("Closing connection.")
+          self.run = False
+      else:
+        self.send(message)
+        print("Server respond: ", self.get())
 
     def get(self) -> str:
-        # Placeholder for advanced use
-        pass
+        data = self.server.recv(1024)
+        response = data.decode()
+        print("Received from server:", response)
+        return response
 
-    def send(self):
-        # Placeholder for advanced use
-        pass
+    def send(self, message):
+        self.server.sendall(message.encode())
 
 client = Client(HOST, PORT)
 client.runClient()
