@@ -1,5 +1,8 @@
 import socket
 import threading
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from Core.Core import Core
 
 HOST = '127.0.0.1'
 PORT = 65432
@@ -12,6 +15,7 @@ class Server:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.players = {}  # player_id -> player dict
         self.lock = threading.Lock()
+        self.game_started = False
 
     def terminalListener(self):
         while self.run:
@@ -114,7 +118,37 @@ class Server:
             print(f"Player {player['id']} is unready")
             self.send(conn, "Marked as Unready")
         else: self.send(conn, "No allowed command")
+
+        
+        if len(self.players) >= 2 and not self.game_started:
+            all_ready = True
+            active_players = [p for p in self.players.values() if p['connected']]
+            
+            # Check if all connected players are ready
+            for p in active_players:
+                if not p['ready']:
+                    all_ready = False
+                    break
+
+            if all_ready and len(active_players) >= 2:
+                self.game_started = True
+                self.game_load = True
+
+        if self.game_started:
+            if self.game_load:
+                self.game_load = False
+                print("Game starting...")
+                players = [p["nick"] for p in active_players]
+                core = Core(players, 3)
+                print("Game Started")
+
+        
+        self.send(conn, str(self.game_started))
+
         return True
+
+    def playGame(self):
+        pass
 
     def get(self, conn) -> str:
         try:
