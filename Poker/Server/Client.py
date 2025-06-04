@@ -24,7 +24,7 @@ class Client:
                 self.clientLogic()
 
     def clientLogic(self):
-      message = input("ready, unready, hand, draw, exit: ")
+      message = input("ready, unready, draw, exit: ")
       if message.lower() == 'exit':
           print("Closing connection.")
           self.run = False
